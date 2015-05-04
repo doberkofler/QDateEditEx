@@ -53,13 +53,27 @@ public:
 
     bool null;
     bool nullable;
+
+    void setNull(bool n) {
+        null = n;
+        if (null) {
+            QLineEdit *edit = qFindChild<QLineEdit *>(q, "qt_spinbox_lineedit");
+            if (!edit->text().isEmpty()) {
+                edit->clear();
+            }
+        }
+        if (nullable) {
+            clearButton->setVisible(!null);
+        }
+
+    }
 };
 
 /*!
   \reimp
 */
 QDateEditEx::QDateEditEx(QWidget *parent) :
-    QDateEdit(parent),d( new Private(this))
+    QDateEdit(parent), d(new Private(this))
 {
 }
 
@@ -109,9 +123,9 @@ QTime QDateEditEx::time() const
 void QDateEditEx::setDateTime(const QDateTime &dateTime)
 {
     if (d->nullable && !dateTime.isValid()) {
-        d->null = true;
+        d->setNull(true);
     } else {
-        d->null = false;
+        d->setNull(false);
         QDateEdit::setDateTime(dateTime);
     }
 }
@@ -123,9 +137,9 @@ void QDateEditEx::setDateTime(const QDateTime &dateTime)
 void QDateEditEx::setDate(const QDate &date)
 {
     if (d->nullable && !date.isValid()) {
-        d->null = true;
+        d->setNull(true);
     } else {
-        d->null = false;
+        d->setNull(false);
         QDateEdit::setDate(date);
     }
 }
@@ -137,9 +151,9 @@ void QDateEditEx::setDate(const QDate &date)
 void QDateEditEx::setTime(const QTime &time)
 {
     if (d->nullable && !time.isValid()) {
-        d->null = true;
+        d->setNull(true);
     } else {
-        d->null = false;
+        d->setNull(false);
         QDateEdit::setTime(time);
     }
 }
@@ -174,6 +188,7 @@ void QDateEditEx::setNullable(bool enable)
         d->clearButton->setFocusPolicy(Qt::NoFocus);
         d->clearButton->setFixedSize(17, d->clearButton->sizeHint().height()-6);
         connect(d->clearButton,SIGNAL(clicked()),this,SLOT(clearButtonClicked()));
+        d->clearButton->setVisible(!d->null);
     } else if (d->clearButton) {
         disconnect(d->clearButton,SIGNAL(clicked()),this,SLOT(clearButtonClicked()));
         delete d->clearButton;
@@ -227,14 +242,6 @@ void QDateEditEx::resizeEvent(QResizeEvent *event)
 */
 void QDateEditEx::paintEvent(QPaintEvent *event)
 {
-    if (d->nullable && d->null) {
-        QLineEdit *edit = qFindChild<QLineEdit *>(this, "qt_spinbox_lineedit");
-        edit->setText("");
-
-        d->clearButton->setVisible(false);
-    } else if (d->nullable) {
-        d->clearButton->setVisible(true);
-    }
     QDateEdit::paintEvent(event);
 }
 
@@ -289,7 +296,15 @@ bool QDateEditEx::focusNextPrevChild(bool next)
     }
 }
 
+QValidator::State QDateEditEx::validate(QString &input, int &pos) const
+{
+    if (d->nullable && d->null){
+        return QValidator::Acceptable;
+    }
+    return QDateEdit::validate(input, pos);
+}
+
 void QDateEditEx::clearButtonClicked()
 {
-    d->null = true;
+    d->setNull(true);
 }
