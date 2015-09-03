@@ -41,12 +41,17 @@ public:
     bool isNullable() const;
     void setNullable(bool enable);
 
+    QSize sizeHint() const;
+    QSize minimumSizeHint() const;
+
 protected:
+    /*! \reimp */ void showEvent(QShowEvent *event);
     /*! \reimp */ void resizeEvent(QResizeEvent *event);
     /*! \reimp */ void paintEvent(QPaintEvent *event);
     /*! \reimp */ void keyPressEvent(QKeyEvent *event);
     /*! \reimp */ void mousePressEvent(QMouseEvent *event);
     /*! \reimp */ bool focusNextPrevChild(bool next);
+    /*! \reimp */ QValidator::State validate(QString &input, int &pos) const;
 
 public Q_SLOTS:
     /*! \reimp */ void setDateTime(const QDateTime &dateTime);

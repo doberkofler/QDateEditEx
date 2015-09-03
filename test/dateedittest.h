@@ -1,9 +1,9 @@
 #ifndef DATEEDITTEST_H
 #define DATEEDITTEST_H
 
-#include <QMainWindow>
+#include <QWidget>
 
-class DateEditTest : public QMainWindow
+class DateEditTest : public QWidget
 {
     Q_OBJECT
 
